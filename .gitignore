@@ -1,0 +1,5 @@
+.vagrant/
+join-command
+*.log
+.idea/
+**/bin/
