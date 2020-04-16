@@ -3,3 +3,4 @@ join-command
 *.log
 .idea/
 **/bin/
+artifacts/

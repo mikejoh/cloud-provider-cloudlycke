@@ -25,23 +25,55 @@
         repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
         state: present
 
-    - name: Install docker and its dependecies
+    - name: Load needed kernel modules
+      modprobe:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - overlay
+        - br_netfilter
+
+    - name: Configure required sysctl params
+      sysctl:
+        name: "{{ item.param }}"
+        value: "{{ item.value }}"
+        state: present
+      with_items:
+        - { param: net.bridge.bridge-nf-call-iptables, value: '1' }
+        - { param: net.bridge.bridge-nf-call-ip6tables, value: '1' }
+        - { param: net.ipv4.ip_forward, value: '1' }
+
+    - name: Install containerd
       apt:
         name: "{{ packages }}"
         state: present
         update_cache: yes
       vars:
         packages:
-          - docker-ce
-          - docker-ce-cli
           - containerd.io
-      notify:
-        - docker status
 
-    - name: Add vagrant user to docker group
-      user:
-        name: vagrant
-        group: docker
+    - name: Create containerd configuration directory
+      become: true
+      file:
+        path: /etc/containerd/
+        state: directory
+
+    - name: Copy containerd config to remote
+      become: true
+      copy:
+        src: configs/config.toml
+        dest: /etc/containerd/config.toml
+
+    - name: Restart containerd
+      service:
+        name: containerd
+        state: restarted
+
+    - name: Copy crictl configuration to remote
+      become: true
+      copy:
+        src: configs/crictl.yaml
+        dest: /etc/crictl.yaml
 
     - name: Remove swapfile from /etc/fstab
       mount:
@@ -91,12 +123,21 @@
         daemon_reload: yes
         state: restarted
 
-    - name: Copy the join command to server location
-      copy: src=join-command dest=/tmp/join-command.sh mode=0777
+    - name: Copy kubeadm join config to remote
+      copy:
+        src: configs/kubeadm-join.yaml
+        dest: /etc/kubernetes/kubeadm-join.yaml
 
     - name: Join the node to cluster
-      command: sh /tmp/join-command.sh
+      become: true
+      command: kubeadm join --config /etc/kubernetes/kubeadm-join.yaml
+
+#    - name: Copy the join command to server location
+#      copy: src=artifacts/join-command dest=/tmp/join-command.sh mode=0777
+
+#    - name: Join the node to cluster
+#      command: sh /tmp/join-command.sh
 
   handlers:
-    - name: docker status
-      service: name=docker state=started
+    - name: containerd status
+      service: name=containerd state=started
