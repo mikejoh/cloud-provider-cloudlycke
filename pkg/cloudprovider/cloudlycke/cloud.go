@@ -7,7 +7,7 @@ import (
 	"k8s.io/klog"
 )
 
-const providerName string = "cloudlycke"
+const ProviderName = "cloudlycke"
 
 // The cloudlycke cloud provider implementation. Encapsulates a client to talk to our cloud provider
 // and the interfaces needed to satisfy the cloudprovider.Interface interface.
@@ -20,7 +20,7 @@ type cloudlycke struct {
 
 // Register the cloud provider
 func init() {
-	cloudprovider.RegisterCloudProvider(providerName, func(io.Reader) (cloudprovider.Interface, error) {
+	cloudprovider.RegisterCloudProvider(ProviderName, func(io.Reader) (cloudprovider.Interface, error) {
 		return newCloud()
 	})
 }
@@ -72,11 +72,11 @@ func (c *cloudlycke) Routes() (cloudprovider.Routes, bool) {
 }
 
 func (c *cloudlycke) ProviderName() string {
-	klog.V(5).Info("ProviderName()")
-	return providerName
+	klog.V(5).Infof("ProviderName() returned %s", ProviderName)
+	return ProviderName
 }
 
 func (c *cloudlycke) HasClusterID() bool {
 	klog.V(5).Info("HasClusterID()")
-	return false
+	return true
 }

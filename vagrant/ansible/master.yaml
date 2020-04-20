@@ -110,28 +110,25 @@
           - kubeadm
           - kubectl
 
-    - name: Configure node ip
-      lineinfile:
-        state: present
-        create: yes
-        path: /etc/default/kubelet
-        line: KUBELET_EXTRA_ARGS=--node-ip={{ node_ip }}
-
     - name: Restart kubelet
       service:
         name: kubelet
         daemon_reload: yes
         state: restarted
 
-    - name: Copy kubeadm init config to remote
-      copy:
-        src: configs/kubeadm-init.yaml
-        dest: /etc/kubernetes/kubeadm-init.yaml
+    - name: Create kubelet env file
+      template:
+        src: "kubelet-env.j2"
+        dest: "/etc/default/kubelet"
+
+    - name: Create kubeadm init config
+      template:
+        src: "kubeadm-init-v1beta2.j2"
+        dest: "/etc/kubernetes/kubeadm-init.conf"
 
     - name: Initialize the Kubernetes cluster using kubeadm
       become: true
-      #command: kubeadm init --apiserver-advertise-address="192.168.50.10" --apiserver-cert-extra-sans="192.168.50.10"  --node-name master --pod-network-cidr=192.168.0.0/16
-      command: kubeadm init --config /etc/kubernetes/kubeadm-init.yaml
+      command: kubeadm init --config /etc/kubernetes/kubeadm-init.conf
 
     - name: Setup kubeconfig for vagrant user
       command: "{{ item }}"
@@ -154,18 +151,10 @@
         src: manifests/cloudlycke-ccm.yaml
         dest: /etc/kubernetes/cloudlycke-ccm.yaml
 
-#    - name: Generate join command
-#      command: kubeadm token create --print-join-command
-#      register: join_command
-
-#    - name: Copy join command to local file
-#      local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="artifacts/join-command"
-#      become: mikael
-
     - name: Copy admin.conf (kubeconfig) from remote
       fetch:
         src: /etc/kubernetes/admin.conf
-        dest: artifacts/admin.conf
+        dest: artifacts/admin-{{ node_name }}.conf
         flat: yes
 
   handlers:

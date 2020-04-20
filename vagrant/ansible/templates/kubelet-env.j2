@@ -1,0 +1,5 @@
+{% if cluster == "2" %}
+KUBELET_EXTRA_ARGS="--node-ip={{ node_ip }} --cloud-provider=external"
+{% else %}
+KUBELET_EXTRA_ARGS="--node-ip={{ node_ip }}"
+{% endif %}

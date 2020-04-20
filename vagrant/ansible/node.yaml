@@ -110,12 +110,10 @@
           - kubeadm
           - kubectl
 
-    - name: Configure node ip
-      lineinfile:
-        state: present
-        create: yes
-        path: /etc/default/kubelet
-        line: KUBELET_EXTRA_ARGS=--node-ip={{ node_ip }}
+    - name: Create kubelet env file
+      template:
+        src: "kubelet-env.j2"
+        dest: "/etc/default/kubelet"
 
     - name: Restart kubelet
       service:
@@ -123,20 +121,14 @@
         daemon_reload: yes
         state: restarted
 
-    - name: Copy kubeadm join config to remote
-      copy:
-        src: configs/kubeadm-join.yaml
-        dest: /etc/kubernetes/kubeadm-join.yaml
+    - name: Create kubeadm join config
+      template:
+        src: "kubeadm-join-v1beta2.j2"
+        dest: "/etc/kubernetes/kubeadm-join.conf"
 
     - name: Join the node to cluster
       become: true
-      command: kubeadm join --config /etc/kubernetes/kubeadm-join.yaml
-
-#    - name: Copy the join command to server location
-#      copy: src=artifacts/join-command dest=/tmp/join-command.sh mode=0777
-
-#    - name: Join the node to cluster
-#      command: sh /tmp/join-command.sh
+      command: kubeadm join --config /etc/kubernetes/kubeadm-join.conf
 
   handlers:
     - name: containerd status

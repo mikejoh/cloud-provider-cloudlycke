@@ -54,7 +54,7 @@ build-linux-docker:
 .PHONY: docker-build
 docker-build:
 	@echo " > Building $(PROJECTNAME) Docker image"
-	@docker build -f cmd/Dockerfile -t $(DOCKER_HUB_REPOSITORY)/$(PROJECTNAME):$(DEFAULT_VERSION_TAG) ./cmd
+	@docker build . -t $(DOCKER_HUB_REPOSITORY)/$(PROJECTNAME):$(DEFAULT_VERSION_TAG)
 
 ## Push Docker image to Docker registry
 .PHONY: docker-push
