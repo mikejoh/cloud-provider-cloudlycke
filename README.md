@@ -17,7 +17,7 @@ Inspired by the DigitalOcean and OpenStack Cloud Controllers!
 
 ## Detailed overview
 
-![](img/cloudlycke-controller-provider.png)
+![cloudlycke-cloud-controller](img/cloudlycke-cloud-controller.png)
 
 ## Starting the Vagrant and deploying Kubernetes
 
