@@ -10,20 +10,36 @@ I've written an in-depth [write-up](**ADD LINK HERE**) that explains and explore
 
 Inspired by the DigitalOcean and OpenStack Cloud Controllers!
 
-## Components
-* `Vagrant`
-* `VirtualBox`
-* `ansible`
-
 ## Detailed overview
 
-![cloudlycke-cloud-controller](img/cloudlycke-cloud-controller.png)
+![cloudlycke-cloud-controller](img/cloudlycke-cloud-controller.svg)
 
-## Starting the Vagrant and deploying Kubernetes
+The environment consists of the following components:
+* `Vagrant`
+* `Ansible`
+* `VirtualBox`
+
+Vagrant will be used to provision the virtual machines ontop of VirtualBox, on these VMs we'll deploy two Kubernetes clusters with one all-in-one master node and one worker node each.
+
+Ansible will be used with `vagrant` during provisioning, included in this repository there's two Ansible playbooks (and other ansible specific resources) located [here](vagrant/ansible).
+
+The first cluster will be deplyed as-is and the second one will be configured in such a way that we'll need a cloud controller to initialize the worker node(s). The magic sauce is the following configuration:
+
+* The API server will be configured with the following flag(s): `--cloud-provider=external`
+* The Controller Manager will be configured wth the following flag(s): `--cloud-provider=external`
+* The Kubelets will be configured with the following flag(s): `--node-ip <VM IP> --cloud-provider=external --provider-id=cloudlycke://<ID>`
+* The Cloudlycke Cloud Controller will be configured with the following flag(s): `--cloud-provider=cloudlycke`
+
+## Starting the Vagrant (cloud) environment and deploy Kubernetes
+
+1. Install Ansible in a `virtualenv` and activate the environment
+2. Run `vagrant up`
+3. When `ansible` and `vagrant` is done check the `artifacts/` directory, you should have two kubeconfigs there called `admin-master-c1-1.conf` and `admin-master-c2-1.conf`
 
 ## Running the Cloud Controller
-* `export KUBECONFIG=<PATH TO admin-master-c2-1.conf>`
-* Check the cluster nodes
+
+1. Export the kubeconfig(s) `export KUBECONFIG=<PATH TO admin-master-c2-1.conf>`
+2. Check the current status of the cluster nodes
 ```
 kubectl get nodes
 
@@ -31,11 +47,11 @@ NAME          STATUS   ROLES    AGE   VERSION
 master-c2-1   Ready    master   24m   v1.18.2
 node-c2-1     Ready    <none>   19m   v1.18.2
 ```
-* Deploy nginx pods (deployment with 3 replicas) for demo purposes
+3. Deploy nginx pods (deployment with 3 replicas) for demo purposes
 ``` 
 kubectl run --image nginx --replicas 3 nginx-demo
 ```
-* Check the status of all pods across all namespaces
+4. Check the status of all pods across all namespaces
 ```
 kubectl get pods -A
 NAMESPACE     NAME                                  READY   STATUS    RESTARTS   AGE   IP              NODE          NOMINATED NODE   READINESS GATES
@@ -55,7 +71,7 @@ kube-system   kube-scheduler-master-c2-1            1/1     Running   0         
 ```
 Note that some of the pods are reporting status `Pending`. The ones that are running are primarily the `DaemonSet` created ones and the ones with toleration configured that allows them to be scheduled e.g. `node-role.kubernetes.io/master: ""`.
 
-* `kubectl describe pods nginx-demo-5756474c97-m4b9t`
+5. `kubectl describe pods nginx-demo-5756474c97-m4b9t`
 ```
 Events:
   Type     Reason            Age                From               Message
