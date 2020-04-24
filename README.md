@@ -1,22 +1,68 @@
-# The Cloudlycke Cloud Controller manager
+# The Cloudlycke Kubernetes Cloud Controller
 
-This repository contains the `cloudlycke-cloud-controller-manager` an out-of-tree built, cloud controller that is encapsulates the business logic of my fake external cloud provider called Cloudlycke. The purpose of this repository is to show how the Cloud Controller works in detail and can be used as an example to create your own cloud controller to be used with your cloud provider.
+This repository contains the Cloudlycke `cloud-controller`, an [out-of-tree](https://kubernetes.io/blog/2019/04/17/the-future-of-cloud-providers-in-kubernetes/) and [by-the-book](https://kubernetes.io/docs/tasks/administer-cluster/developing-cloud-controller-manager/#out-of-tree) built Kubernetes cloud controller that implements the `cloud-provider` [Interface](https://github.com/kubernetes/cloud-provider/blob/v0.18.2/cloud.go#L43-L62).
 
-See the following blog post for more in-depth information and discussion: **ADD LINK HERE**
+This `cloud-controller` is built using the `v1.18.x` release of Kubernetes. This means that `v1.18.x` is used everywhere we have dependencies on Kubernetes. 
 
-## TODO:
-* Successfully started the `cloudlycke-cloud-controller-manager` in `minikube`, gives us the following log at the moment:
+Cloudlycke is my fake cloud provider, which at the moment is Vagrant. I wanted my Kubernetes clusters in this cloud provider to be able to integrate with the underlying cloud. For the purpose of showing the ins and outs of the Kubernetes `cloud-controller` most of the API "calls" to Cloudlycke is hardcoded to respond with a particular response.
+
+I've written an in-depth [write-up](**ADD LINK HERE**) that explains and explores the Cloud Controller.
+
+Inspired by the DigitalOcean and OpenStack Cloud Controllers!
+
+## Components
+* `Vagrant`
+* `VirtualBox`
+* `ansible`
+
+## Detailed overview
+
+![](img/cloudlycke-controller-provider.png)
+
+## Starting the Vagrant and deploying Kubernetes
+
+## Running the Cloud Controller
+* `export KUBECONFIG=<PATH TO admin-master-c2-1.conf>`
+* Check the cluster nodes
 ```
-I0414 08:16:33.845655       1 node_controller.go:110] Sending events to api server.                                                           
-I0414 08:16:33.846444       1 cloud.go:55] Instances()                                                                                        
-I0414 08:16:33.846708       1 controllermanager.go:247] Started "cloud-node"                                                                  
-I0414 08:16:33.847005       1 controllermanager.go:237] Starting "cloud-node-lifecycle"                                                       
-I0414 08:16:33.846964       1 cloud.go:55] Instances()                                                                                        
-I0414 08:16:33.851153       1 instances.go:43] InstanceID()                                                                                   
-W0414 08:16:33.851358       1 node_controller.go:527] Cannot find valid providerID for node name "minikube", assuming non existence           
-I0414 08:16:33.851456       1 node_controller.go:239] The node minikube is no longer present according to the cloud provider, do not process. 
-I0414 08:16:33.851610       1 cloud.go:55] Instances()                                                                                        
-I0414 08:16:33.854183       1 instances.go:43] InstanceID()                                                                                   
-W0414 08:16:33.854784       1 node_controller.go:527] Cannot find valid providerID for node name "minikube", assuming non existence           
-I0414 08:16:33.855022       1 node_controller.go:239] The node minikube is no longer present according to the cloud provider, do not process.
+kubectl get nodes
+
+NAME          STATUS   ROLES    AGE   VERSION
+master-c2-1   Ready    master   24m   v1.18.2
+node-c2-1     Ready    <none>   19m   v1.18.2
+```
+* Deploy nginx pods (deployment with 3 replicas) for demo purposes
 ``` 
+kubectl run --image nginx --replicas 3 nginx-demo
+```
+* Check the status of all pods across all namespaces
+```
+kubectl get pods -A
+NAMESPACE     NAME                                  READY   STATUS    RESTARTS   AGE   IP              NODE          NOMINATED NODE   READINESS GATES
+default       nginx-demo-5756474c97-m4b9t           0/1     Pending   0          25m   <none>          <none>        <none>           <none>
+default       nginx-demo-5756474c97-qqjg4           0/1     Pending   0          25m   <none>          <none>        <none>           <none>
+default       nginx-demo-5756474c97-rbhvt           0/1     Pending   0          25m   <none>          <none>        <none>           <none>
+kube-system   coredns-66bff467f8-cthqz              0/1     Pending   0          32m   <none>          <none>        <none>           <none>
+kube-system   coredns-66bff467f8-j24c2              0/1     Pending   0          32m   <none>          <none>        <none>           <none>
+kube-system   etcd-master-c2-1                      1/1     Running   0          32m   192.168.20.10   master-c2-1   <none>           <none>
+kube-system   kube-apiserver-master-c2-1            1/1     Running   0          32m   192.168.20.10   master-c2-1   <none>           <none>
+kube-system   kube-controller-manager-master-c2-1   1/1     Running   0          32m   192.168.20.10   master-c2-1   <none>           <none>
+kube-system   kube-flannel-ds-amd64-qhbdp           1/1     Running   0          32m   192.168.20.10   master-c2-1   <none>           <none>
+kube-system   kube-flannel-ds-amd64-r22f7           1/1     Running   1          27m   192.168.20.11   node-c2-1     <none>           <none>
+kube-system   kube-proxy-bqn2b                      1/1     Running   0          32m   192.168.20.10   master-c2-1   <none>           <none>
+kube-system   kube-proxy-rmwx7                      1/1     Running   0          27m   192.168.20.11   node-c2-1     <none>           <none>
+kube-system   kube-scheduler-master-c2-1            1/1     Running   0          32m   192.168.20.10   master-c2-1   <none>           <none>
+```
+Note that some of the pods are reporting status `Pending`. The ones that are running are primarily the `DaemonSet` created ones and the ones with toleration configured that allows them to be scheduled e.g. `node-role.kubernetes.io/master: ""`.
+
+* `kubectl describe pods nginx-demo-5756474c97-m4b9t`
+```
+Events:
+  Type     Reason            Age                From               Message
+  ----     ------            ----               ----               -------
+  Warning  FailedScheduling  20s (x2 over 20s)  default-scheduler  0/2 nodes are available: 1 node(s) had taint {node-role.kubernetes.io/master: }, that the pod didn't tolerate, 1 node(s) had taint {node.cloudprovider.kubernetes.io/uninitialized: true}, that the pod didn't tolerate.
+``` 
+Note that the master node `master-c2-1` will be tainted and only allow pods with the correct toleration. The worker node `node-c2-1` is still awaiting initialization of our external cloud provider controller.
+
+### References
+

@@ -25,21 +25,30 @@ func newZones(c *http.Client) cloudprovider.Zones {
 // can no longer be called from the kubelets.
 func (z *zones) GetZone(ctx context.Context) (cloudprovider.Zone, error) {
 	klog.V(5).Info("GetZone()")
-	return cloudprovider.Zone{}, nil
+	return cloudprovider.Zone{
+		FailureDomain: "laptop",
+		Region:        "virtualbox",
+	}, nil
 }
 
 // GetZoneByProviderID returns the Zone containing the current zone and locality region of the node specified by providerID
 // This method is particularly used in the context of external cloud providers where node initialization must be done
 // outside the kubelets.
 func (z *zones) GetZoneByProviderID(ctx context.Context, providerID string) (cloudprovider.Zone, error) {
-	klog.V(5).Info("GetZoneByProviderID()")
-	return cloudprovider.Zone{}, nil
+	klog.V(5).Infof("GetZoneByProviderID(%v)", providerID)
+	return cloudprovider.Zone{
+		FailureDomain: "virtualbox",
+		Region:        "virtualbox",
+	}, nil
 }
 
 // GetZoneByNodeName returns the Zone containing the current zone and locality region of the node specified by node name
 // This method is particularly used in the context of external cloud providers where node initialization must be done
 // outside the kubelets.
 func (z *zones) GetZoneByNodeName(ctx context.Context, nodeName types.NodeName) (cloudprovider.Zone, error) {
-	klog.V(5).Info("GetZoneByNodeName()")
-	return cloudprovider.Zone{}, nil
+	klog.V(5).Infof("GetZoneByNodeName(%v)", nodeName)
+	return cloudprovider.Zone{
+		FailureDomain: "virtualbox",
+		Region:        "virtualbox",
+	}, nil
 }

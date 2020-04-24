@@ -45,16 +45,16 @@ spec:
             - /bin/cloudlycke-cloud-controller-manager
           args:
             - --v=5
-            #- --cloud-config=""
             - --cloud-provider=cloudlycke
-            - --leader-elect=true
+            - --cluster-name=kubernetes-2
             - --use-service-account-credentials
-            - --allow-untagged-cloud=true
+            - --address=127.0.0.1
             # these flags will vary for every cloud provider
+            #- --cloud-config=""
+            #- --leader-elect=true
             #- --allocate-node-cidrs=true
             #- --configure-cloud-routes=true
             #- --cluster-cidr=172.17.0.0/16
-            - --address=127.0.0.1
       tolerations:
         # this is required so CCM can bootstrap itself
         - key: node.cloudprovider.kubernetes.io/uninitialized

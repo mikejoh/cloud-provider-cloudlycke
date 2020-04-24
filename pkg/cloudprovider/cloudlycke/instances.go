@@ -26,8 +26,7 @@ func (i *instances) NodeAddresses(ctx context.Context, name types.NodeName) ([]v
 
 	var addrs []v1.NodeAddress
 
-	switch name {
-	case "master-c2-1":
+	if string(name) == "master-c2-1" {
 		nodeAddr := v1.NodeAddress{
 			Type:    v1.NodeInternalIP,
 			Address: "192.168.20.10",
@@ -40,11 +39,10 @@ func (i *instances) NodeAddresses(ctx context.Context, name types.NodeName) ([]v
 			Type:    v1.NodeHostName,
 			Address: "master-c2-1",
 		}
-
 		addrs = append(addrs, nodeAddr)
 		addrs = append(addrs, nodeExternalAddr)
 		addrs = append(addrs, nodeHostName)
-	case "node-c2-n1":
+	} else if string(name) == "node-c2-1" {
 		nodeAddr := v1.NodeAddress{
 			Type:    v1.NodeInternalIP,
 			Address: "192.168.20.11",
@@ -55,14 +53,12 @@ func (i *instances) NodeAddresses(ctx context.Context, name types.NodeName) ([]v
 		}
 		nodeHostName := v1.NodeAddress{
 			Type:    v1.NodeHostName,
-			Address: "node-c2-n1",
+			Address: "node-c2-1",
 		}
 
 		addrs = append(addrs, nodeAddr)
 		addrs = append(addrs, nodeExternalAddr)
 		addrs = append(addrs, nodeHostName)
-	default:
-		klog.V(5).Info("NodeAddresses switch failed!")
 	}
 
 	return addrs, nil
@@ -76,10 +72,11 @@ func (i *instances) NodeAddresses(ctx context.Context, name types.NodeName) ([]v
 func (i *instances) NodeAddressesByProviderID(ctx context.Context, providerID string) ([]v1.NodeAddress, error) {
 	klog.V(5).Infof("NodeAddressesByProviderID(%v)", providerID)
 
+	// TODO: Add split function to get the instance ID from provider ID and do a "lookup"
+
 	var addrs []v1.NodeAddress
 
-	switch providerID {
-	case "cloudlycke://1":
+	if providerID == "cloudlycke://m-c2-1" {
 		nodeAddr := v1.NodeAddress{
 			Type:    v1.NodeInternalIP,
 			Address: "192.168.20.10",
@@ -96,7 +93,7 @@ func (i *instances) NodeAddressesByProviderID(ctx context.Context, providerID st
 		addrs = append(addrs, nodeAddr)
 		addrs = append(addrs, nodeExternalAddr)
 		addrs = append(addrs, nodeHostName)
-	case "cloudlycke://2":
+	} else if providerID == "cloudlycke://n-c2-1" {
 		nodeAddr := v1.NodeAddress{
 			Type:    v1.NodeInternalIP,
 			Address: "192.168.20.11",
@@ -107,14 +104,11 @@ func (i *instances) NodeAddressesByProviderID(ctx context.Context, providerID st
 		}
 		nodeHostName := v1.NodeAddress{
 			Type:    v1.NodeHostName,
-			Address: "node-c2-n1",
+			Address: "node-c2-1",
 		}
-
 		addrs = append(addrs, nodeAddr)
 		addrs = append(addrs, nodeExternalAddr)
 		addrs = append(addrs, nodeHostName)
-	default:
-		klog.V(5).Infof("ProviderID is %v", providerID)
 	}
 
 	return addrs, nil
@@ -128,13 +122,10 @@ func (i *instances) InstanceID(ctx context.Context, nodeName types.NodeName) (st
 
 	var instanceID string
 
-	switch nodeName {
-	case "master-c2-1":
-		instanceID = "1"
-	case "node-c2-n1":
-		instanceID = "2"
-	default:
-		klog.V(5).Info("InstanceID switch failed!")
+	if string(nodeName) == "master-c2-1" {
+		instanceID = "cloudlycke://m-c2-1"
+	} else if string(nodeName) == "node-c2-1" {
+		instanceID = "cloudlycke://n-c2-1"
 	}
 
 	return instanceID, nil
@@ -146,13 +137,10 @@ func (i *instances) InstanceType(ctx context.Context, name types.NodeName) (stri
 
 	var instanceType string
 
-	switch name {
-	case "master-c2-1":
+	if string(name) == "master-c2-1" {
 		instanceType = "vbox.vm.512mb.1cpu"
-	case "node-c2-n1":
+	} else if string(name) == "node-c2-1" {
 		instanceType = "vbox.vm.1g.2cpu"
-	default:
-		klog.V(5).Info("InstanceType switch failed!")
 	}
 
 	return instanceType, nil
@@ -164,13 +152,10 @@ func (i *instances) InstanceTypeByProviderID(ctx context.Context, providerID str
 
 	var instanceType string
 
-	switch providerID {
-	case "cloudlycke://1":
+	if providerID == "cloudlycke://m-c2-1" {
 		instanceType = "vbox.vm.512mb.1cpu"
-	case "cloudlycke://2":
+	} else if providerID == "cloudlycke://n-c2-1" {
 		instanceType = "vbox.vm.1g.2cpu"
-	default:
-		klog.V(5).Info("InstanceTypeByProviderID switch failed!")
 	}
 
 	return instanceType, nil
@@ -190,11 +175,10 @@ func (i *instances) CurrentNodeName(ctx context.Context, hostname string) (types
 
 	var nodeName types.NodeName
 
-	switch hostname {
-	case "master-c2-1":
+	if hostname == "master-c2-1" {
 		nodeName = "master-c2-1"
-	case "node-c2-n1":
-		nodeName = "node-c2-n1"
+	} else if hostname == "node-c2-1" {
+		nodeName = "node-c2-1"
 	}
 
 	return nodeName, nil
@@ -208,10 +192,9 @@ func (i *instances) InstanceExistsByProviderID(ctx context.Context, providerID s
 
 	var exists bool
 
-	switch providerID {
-	case "cloudlycke://1":
+	if providerID == "cloudlycke://m-c2-1" {
 		exists = true
-	case "cloudlycke://2":
+	} else if providerID == "cloudlycke://n-c2-1" {
 		exists = true
 	}
 
@@ -224,11 +207,10 @@ func (i *instances) InstanceShutdownByProviderID(ctx context.Context, providerID
 
 	var shutdown bool
 
-	switch providerID {
-	case "cloudlycke://1":
-		shutdown = false
-	case "cloudlycke://2":
-		shutdown = false
+	if providerID == "cloudlycke://m-c2-1" {
+		shutdown = true
+	} else if providerID == "cloudlycke://n-c2-1" {
+		shutdown = true
 	}
 
 	return shutdown, nil

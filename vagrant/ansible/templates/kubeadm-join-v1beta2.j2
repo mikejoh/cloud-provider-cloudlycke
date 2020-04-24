@@ -11,3 +11,10 @@ discovery:
   tlsBootstrapToken: abcdef.0123456789abcdef
 nodeRegistration:
   criSocket: /var/run/containerd/containerd.sock
+  name: {{ node_name }}
+  kubeletExtraArgs:
+    node-ip: {{ node_ip }}
+{% if cluster == "2" %}
+    provider-id: {{ cloud_provider }}://{{ node_id }}
+    cloud-provider: external
+{% endif %}

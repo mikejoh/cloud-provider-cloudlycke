@@ -17,11 +17,17 @@ nodeRegistration:
   taints:
   - effect: NoSchedule
     key: node-role.kubernetes.io/master
+  kubeletExtraArgs:
+    node-ip: {{ node_ip }}
+{% if cluster == "2" %}
+    provider-id: {{ cloud_provider }}://{{ node_id }}
+    cloud-provider: external
+{% endif %}
 ---
 apiVersion: kubeadm.k8s.io/v1beta2
 kind: ClusterConfiguration
 imageRepository: k8s.gcr.io
-kubernetesVersion: v1.18.0
+kubernetesVersion: v{{ k8s_version }}
 clusterName: kubernetes-{{ cluster }}
 apiServer:
   certSANs:

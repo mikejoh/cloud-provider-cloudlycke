@@ -106,20 +106,9 @@
         update_cache: yes
       vars:
         packages:
-          - kubelet
-          - kubeadm
-          - kubectl
-
-    - name: Create kubelet env file
-      template:
-        src: "kubelet-env.j2"
-        dest: "/etc/default/kubelet"
-
-    - name: Restart kubelet
-      service:
-        name: kubelet
-        daemon_reload: yes
-        state: restarted
+          - kubelet={{ k8s_version }}-00
+          - kubeadm={{ k8s_version }}-00
+          - kubectl={{ k8s_version }}-00
 
     - name: Create kubeadm join config
       template:
@@ -129,6 +118,12 @@
     - name: Join the node to cluster
       become: true
       command: kubeadm join --config /etc/kubernetes/kubeadm-join.conf
+
+    - name: Restart kubelet
+      service:
+        name: kubelet
+        daemon_reload: yes
+        state: restarted
 
   handlers:
     - name: containerd status

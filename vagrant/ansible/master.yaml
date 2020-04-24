@@ -106,20 +106,9 @@
         update_cache: yes
       vars:
         packages:
-          - kubelet
-          - kubeadm
-          - kubectl
-
-    - name: Restart kubelet
-      service:
-        name: kubelet
-        daemon_reload: yes
-        state: restarted
-
-    - name: Create kubelet env file
-      template:
-        src: "kubelet-env.j2"
-        dest: "/etc/default/kubelet"
+          - kubelet={{ k8s_version }}-00
+          - kubeadm={{ k8s_version }}-00
+          - kubectl={{ k8s_version }}-00
 
     - name: Create kubeadm init config
       template:
@@ -136,6 +125,12 @@
         - mkdir -p /home/vagrant/.kube
         - cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
         - chown vagrant:vagrant /home/vagrant/.kube/config
+
+    - name: Restart kubelet
+      service:
+        name: kubelet
+        daemon_reload: yes
+        state: restarted
 
     - name: Copy flannel manifest(s) to remote
       copy:

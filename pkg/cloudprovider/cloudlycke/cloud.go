@@ -58,7 +58,7 @@ func (c *cloudlycke) Instances() (cloudprovider.Instances, bool) {
 
 func (c *cloudlycke) Zones() (cloudprovider.Zones, bool) {
 	klog.V(5).Info("Zones()")
-	return nil, true
+	return c.zones, true
 }
 
 // Clusters is not implemented
