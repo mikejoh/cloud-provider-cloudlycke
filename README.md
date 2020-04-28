@@ -38,6 +38,8 @@ The first cluster will be deplyed as-is and the second one will be configured in
 
 ## Running the Cloud Controller
 
+![cloud-controller-manager](img/cloud_controller.png)
+
 1. Export the kubeconfig(s) `export KUBECONFIG=<PATH TO admin-master-c2-1.conf>`
 2. Check the current status of the cluster nodes
 ```
@@ -79,6 +81,8 @@ Events:
   Warning  FailedScheduling  20s (x2 over 20s)  default-scheduler  0/2 nodes are available: 1 node(s) had taint {node-role.kubernetes.io/master: }, that the pod didn't tolerate, 1 node(s) had taint {node.cloudprovider.kubernetes.io/uninitialized: true}, that the pod didn't tolerate.
 ``` 
 Note that the master node `master-c2-1` will be tainted and only allow pods with the correct toleration. The worker node `node-c2-1` is still awaiting initialization of our external cloud provider controller.
+
+6. 
 
 ### References
 
