@@ -38,8 +38,6 @@ The first cluster will be deplyed as-is and the second one will be configured in
 
 ## Running the Cloud Controller
 
-![cloud-controller-manager](img/cloud_controller.png)
-
 1. Export the kubeconfig(s) `export KUBECONFIG=<PATH TO admin-master-c2-1.conf>`
 2. Check the current status of the cluster nodes
 ```
