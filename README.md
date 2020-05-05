@@ -1,14 +1,14 @@
-# The Cloudlycke Kubernetes Cloud Controller
+# The Cloudlycke Cloud Controller Manager
 
-This repository contains the Cloudlycke `cloud-controller`, an [out-of-tree](https://kubernetes.io/blog/2019/04/17/the-future-of-cloud-providers-in-kubernetes/) and [by-the-book](https://kubernetes.io/docs/tasks/administer-cluster/developing-cloud-controller-manager/#out-of-tree) built Kubernetes cloud controller that implements the `cloud-provider` [Interface](https://github.com/kubernetes/cloud-provider/blob/v0.18.2/cloud.go#L43-L62).
+This repository contains the Cloudlycke Cloud Controller Manager, an [out-of-tree](https://kubernetes.io/blog/2019/04/17/the-future-of-cloud-providers-in-kubernetes/) and [by-the-book](https://kubernetes.io/docs/tasks/administer-cluster/developing-cloud-controller-manager/#out-of-tree) built Kubernetes cloud controller that implements the `cloud-provider` [Interface](https://github.com/kubernetes/cloud-provider/blob/v0.18.2/cloud.go#L43-L62). 
 
 This `cloud-controller` is built using the `v1.18.x` release of Kubernetes. This means that `v1.18.x` is used everywhere we have dependencies on Kubernetes. 
 
-Cloudlycke is my fake cloud provider, which at the moment is Vagrant. I wanted my Kubernetes clusters in this cloud provider to be able to integrate with the underlying cloud. For the purpose of showing the ins and outs of the Kubernetes `cloud-controller` most of the API "calls" to Cloudlycke is hardcoded to respond with a particular response.
+Cloudlycke is my imaginary (!) cloud provider, which at the moment is Vagrant (kind of). I wanted my Kubernetes clusters in this cloud provider to be able to integrate with the underlying cloud. For the purpose of showing the ins and outs of the Kubernetes `cloud-controller` most of the API "calls" to Cloudlycke is hardcoded to respond with a particular response to fit the scenarios. It does *not* communicate with Vagrant in any way, but it looks like that anyways.
 
-I've written an in-depth [write-up](**ADD LINK HERE**) that explains and explores the Cloud Controller.
+I've written an in-depth [write-up](ADD LINK HERE) that explains and explores the Cloud Controller, from more of a theoretical and source code level.
 
-Inspired by the DigitalOcean and OpenStack Cloud Controllers!
+Inspired by the [DigitalOcean](ADD LINK HERE) and [OpenStack](ADD LINK HERE) Cloud Controllers!
 
 ## Detailed overview
 
