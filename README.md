@@ -30,6 +30,8 @@ The first cluster will be deplyed as-is and the second one will be configured in
 * The Kubelets will be configured with the following flag(s): `--node-ip <VM IP> --cloud-provider=external --provider-id=cloudlycke://<ID>`
 * The Cloudlycke Cloud Controller will be configured with the following flag(s): `--cloud-provider=cloudlycke`
 
+  _Please note that the container image, used in the [all-in-one manifest](/manifests/cloudlycke-ccm.yaml), is one that i've built and pushed to my private Docker Hub repository. Please see the [Dockerfile](/Dockerfile) to see how the image was built._
+
 ## Starting the Vagrant (cloud) environment and deploy Kubernetes
 
 1. Install Ansible in a `virtualenv` and activate the environment
@@ -80,7 +82,38 @@ Events:
 ``` 
 Note that the master node `master-c2-1` will be tainted and only allow pods with the correct toleration. The worker node `node-c2-1` is still awaiting initialization of our external cloud provider controller.
 
-6. 
+6. Now install the Cloudlycke CCM, before you'll do that you can do the following:
+  * Take a note of the Node `node-c2-1` labels.
+  * Take a note of the Node `node-c2-1` taints.
+  ```
+  kubectl apply -f mainfests/cloudlycke-ccm.yaml 
+  ```
+   Immediately after you're done applying the manifest(s) please tail the log of the deployed Cloudlycke CCM Pod for more info:
+  ```
+  kubectl logs -n kube-system -l k8s-app=cloudlycke-cloud-controller-manager -f
+  ```
+  
+  You now should've observed at least three things about the worker node `node-c2-1` at least:
+  * The taint `node.cloudprovider.kubernetes.io/uninitialized` have been removed
+  * The node now have a couple of more labels with information about the node given from the cloud provider, these should be:
+    ```
+    ...
+    labels:
+      ...
+      beta.kubernetes.io/instance-type: vbox.vm.1g.2cpu
+      failure-domain.beta.kubernetes.io/region: virtualbox
+      failure-domain.beta.kubernetes.io/zone: virtualbox
+      node.kubernetes.io/instance-type: vbox.vm.1g.2cpu
+      topology.kubernetes.io/region: virtualbox
+      topology.kubernetes.io/zone: virtualbox
+      ...
+    ```
+    If you wonder why there's beta labels in there you can track the promotion of cloud provider labels to GA at [this](https://github.com/kubernetes/enhancements/issues/837) issue, here's a KEP defining [standard topology labels](https://github.com/kubernetes/enhancements/pull/1660) that also might be of interest.
+  * The Nginx Pods that earlier were in `Pending` state now should be `Running`, this is a consequence of that taint being removed.
+  
+  The responsible controller for these operations are the (Cloud) Node Controller.
+
+7. 
 
 ### References
 

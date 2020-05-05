@@ -208,7 +208,7 @@ func (i *instances) InstanceShutdownByProviderID(ctx context.Context, providerID
 	var shutdown bool
 
 	if providerID == "cloudlycke://m-c2-1" {
-		shutdown = true
+		shutdown = false
 	} else if providerID == "cloudlycke://n-c2-1" {
 		shutdown = true
 	}
