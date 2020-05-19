@@ -12,20 +12,26 @@ I wanted my Kubernetes clusters in this cloud provider to be able to integrate w
 
 I've written an in-depth [write-up](ADD LINK HERE) that explains and explores the Cloud Controller Manager, from more of a theoretical and source code level.
 
+If this is of any kind of interest to you and if you've spotted something that just isn't correct, please feel free to contribute with issues and PRs!
+
+## Todo
+
+* Implement the `LoadBalancer()` interface methods to show how that would look like.
+
 ## Detailed overview
 
 ![cloudlycke-cloud-controller](img/cloudlycke-cloud-controller.svg)
 
 The environment consists of the following components:
-* `Vagrant`
-* `Ansible`
-* `VirtualBox`
+* `vagrant`
+* `ansible`, used as the provisioner in `vagrant`
+* `VirtualBox`, Hypervisor
 
 Vagrant will be used to provision the virtual machines ontop of VirtualBox, on these VMs we'll deploy two Kubernetes clusters with one all-in-one master node and one worker node each.
 
 Ansible will be used with `vagrant` during provisioning, included in this repository there's two Ansible playbooks (and other ansible specific resources) located [here](vagrant/ansible).
 
-The first cluster will be deplyed as-is and the second one will be configured in such a way that we'll need a cloud controller to initialize the k8s node(s). Needed configuration of the k8s control and data plane components:
+The first cluster will be deplyed as-is and the second one will be configured in such a way that we'll need a cloud controller to initialize the k8s node(s). Needed configuration of the k8s control plane components:
 
 * The API server will be configured with the following flag(s): `--cloud-provider=external`. This is not needed, but since there's still code in the API server that does cloud provider specific method calls ([#1](https://github.com/kubernetes/kubernetes/blob/9e991415386e4cf155a24b1da15becaa390438d8/cmd/kube-apiserver/app/server.go#L235) [#2](https://github.com/kubernetes/kubernetes/blob/9e991415386e4cf155a24b1da15becaa390438d8/cmd/kube-apiserver/app/server.go#L241)) i'll leave it here as documentation.
 * The Controller Manager will be configured wth the following flag(s): `--cloud-provider=external`
@@ -38,7 +44,7 @@ The first cluster will be deplyed as-is and the second one will be configured in
 
 1. Install Ansible in a `virtualenv` and activate the environment
 2. Run `vagrant up`
-3. When `ansible` and `vagrant` is done check the `artifacts/` directory, you should have two kubeconfigs there called `admin-master-c1-1.conf` and `admin-master-c2-1.conf`
+3. When `ansible` and `vagrant` is done check the `artifacts/` directory, you should have two kubeconfigs there called `admin-master-c1-1.conf` and `admin-master-c2-1.conf`. Basically one for each Kubernetes cluster.
 
 ## Running the Cloud Controller
 
@@ -114,8 +120,10 @@ Note that the master node `master-c2-1` will be tainted and only allow pods with
   * The Nginx Pods that earlier were in `Pending` state now should be `Running`, this is a consequence of that taint being removed.
   
   The responsible controller for these operations are the (Cloud) Node Controller.
+  
+That's basically it for now! There's a bunch of things that i haven't implemented yet in the CCM (like the `LoadBalancer()` methods), but the very basics are in place and observable.
 
-7. 
+If you haven't seen 
 
 ### References
 
