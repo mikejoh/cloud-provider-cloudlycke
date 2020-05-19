@@ -1,14 +1,16 @@
 # The Cloudlycke Cloud Controller Manager
 
-This repository contains the Cloudlycke Cloud Controller Manager, an [out-of-tree](https://kubernetes.io/blog/2019/04/17/the-future-of-cloud-providers-in-kubernetes/) and [by-the-book](https://kubernetes.io/docs/tasks/administer-cluster/developing-cloud-controller-manager/#out-of-tree) built Kubernetes cloud controller that implements the `cloud-provider` [Interface](https://github.com/kubernetes/cloud-provider/blob/v0.18.2/cloud.go#L43-L62). 
+This repository contains the Cloudlycke Cloud Controller Manager, an [out-of-tree](https://kubernetes.io/blog/2019/04/17/the-future-of-cloud-providers-in-kubernetes/) and [by-the-book](https://kubernetes.io/docs/tasks/administer-cluster/developing-cloud-controller-manager/#out-of-tree) built Kubernetes cloud controller that implements the `k8s.io/cloud-provider` [Interface](https://github.com/kubernetes/cloud-provider/blob/v0.18.2/cloud.go#L43-L62). 
 
-This `cloud-controller` is built using the `v1.18.x` release of Kubernetes. This means that `v1.18.x` is used everywhere we have dependencies on Kubernetes. 
+This `cloud-controller-manager` is built using the `v1.18.x` release of Kubernetes. This means that `v1.18.x` is used everywhere we have dependencies on Kubernetes. 
 
-Cloudlycke is my imaginary (!) cloud provider, which at the moment is Vagrant (kind of). I wanted my Kubernetes clusters in this cloud provider to be able to integrate with the underlying cloud. For the purpose of showing the ins and outs of the Kubernetes `cloud-controller` most of the API "calls" to Cloudlycke is hardcoded to respond with a particular response to fit the scenarios. It does *not* communicate with Vagrant in any way, but it looks like that anyways.
+Cloudlycke is my cloud provider, which is backed by Vagrant. Not to bad, huh? 
 
-I've written an in-depth [write-up](ADD LINK HERE) that explains and explores the Cloud Controller, from more of a theoretical and source code level.
+I wanted my Kubernetes clusters in this cloud provider to be able to integrate with the underlying cloud. Mainly to show you the ins and outs of the Kubernetes `cloud-controller-manager`.
+ 
+ All of the API calls to the Cloudlycke cloud provider is hardcoded to respond with a particular response to fit the scenarios. It does *not* communicate with Vagrant in any way, but it looks like that anyways.
 
-Inspired by the [DigitalOcean](ADD LINK HERE) and [OpenStack](ADD LINK HERE) Cloud Controllers!
+I've written an in-depth [write-up](ADD LINK HERE) that explains and explores the Cloud Controller Manager, from more of a theoretical and source code level.
 
 ## Detailed overview
 
@@ -23,11 +25,11 @@ Vagrant will be used to provision the virtual machines ontop of VirtualBox, on t
 
 Ansible will be used with `vagrant` during provisioning, included in this repository there's two Ansible playbooks (and other ansible specific resources) located [here](vagrant/ansible).
 
-The first cluster will be deplyed as-is and the second one will be configured in such a way that we'll need a cloud controller to initialize the worker node(s). The magic sauce is the following configuration:
+The first cluster will be deplyed as-is and the second one will be configured in such a way that we'll need a cloud controller to initialize the k8s node(s). Needed configuration of the k8s control and data plane components:
 
-* The API server will be configured with the following flag(s): `--cloud-provider=external`
+* The API server will be configured with the following flag(s): `--cloud-provider=external`. This is not needed, but since there's still code in the API server that does cloud provider specific method calls ([#1](https://github.com/kubernetes/kubernetes/blob/9e991415386e4cf155a24b1da15becaa390438d8/cmd/kube-apiserver/app/server.go#L235) [#2](https://github.com/kubernetes/kubernetes/blob/9e991415386e4cf155a24b1da15becaa390438d8/cmd/kube-apiserver/app/server.go#L241)) i'll leave it here as documentation.
 * The Controller Manager will be configured wth the following flag(s): `--cloud-provider=external`
-* The Kubelets will be configured with the following flag(s): `--node-ip <VM IP> --cloud-provider=external --provider-id=cloudlycke://<ID>`
+* The Kubelets will be configured with the following flag(s): `--node-ip <VM IP> --cloud-provider=external --provider-id=cloudlycke://<ID>`. I added the `provider-id` flag to force the `kubelet` to set that on node initialization. The value of this flag is used during the subsequent calls to the Cloudlycke cloud through the Cloud Controller Manager.
 * The Cloudlycke Cloud Controller will be configured with the following flag(s): `--cloud-provider=cloudlycke`
 
   _Please note that the container image, used in the [all-in-one manifest](/manifests/cloudlycke-ccm.yaml), is one that i've built and pushed to my private Docker Hub repository. Please see the [Dockerfile](/Dockerfile) to see how the image was built._
@@ -117,3 +119,7 @@ Note that the master node `master-c2-1` will be tainted and only allow pods with
 
 ### References
 
+* [Developing Cloud Controller Manager](https://kubernetes.io/docs/tasks/administer-cluster/developing-cloud-controller-manager/)
+* [Cloud Controller Manager Administration](https://kubernetes.io/docs/tasks/administer-cluster/running-cloud-controller/)
+* [DigitalOcean `cloud-controller-manager`](https://github.com/digitalocean/digitalocean-cloud-controller-manager)
+* [OpenStack `cloud-controller-manager`](https://github.com/kubernetes/cloud-provider-openstack)

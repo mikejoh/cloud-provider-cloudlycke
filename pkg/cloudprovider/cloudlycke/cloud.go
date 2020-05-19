@@ -71,6 +71,7 @@ func (c *cloudlycke) Routes() (cloudprovider.Routes, bool) {
 	return nil, false
 }
 
+// ProviderName returns this cloud providers name
 func (c *cloudlycke) ProviderName() string {
 	klog.V(5).Infof("ProviderName() returned %s", ProviderName)
 	return ProviderName
