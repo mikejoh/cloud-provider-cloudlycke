@@ -123,8 +123,6 @@ Note that the master node `master-c2-1` will be tainted and only allow pods with
   
 That's basically it for now! There's a bunch of things that i haven't implemented yet in the CCM (like the `LoadBalancer()` methods), but the very basics are in place and observable.
 
-If you haven't seen 
-
 ### References
 
 * [Developing Cloud Controller Manager](https://kubernetes.io/docs/tasks/administer-cluster/developing-cloud-controller-manager/)
