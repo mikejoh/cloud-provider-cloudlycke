@@ -35,7 +35,7 @@ The first cluster will be deplyed as-is and the second one will be configured in
 
 * The API server will be configured with the following flag(s): `--cloud-provider=external`. This is not needed, but since there's still code in the API server that does cloud provider specific method calls ([#1](https://github.com/kubernetes/kubernetes/blob/9e991415386e4cf155a24b1da15becaa390438d8/cmd/kube-apiserver/app/server.go#L235) [#2](https://github.com/kubernetes/kubernetes/blob/9e991415386e4cf155a24b1da15becaa390438d8/cmd/kube-apiserver/app/server.go#L241)) i'll leave it here as documentation.
 * The Controller Manager will be configured wth the following flag(s): `--cloud-provider=external`
-* The Kubelets will be configured with the following flag(s): `--node-ip <VM IP> --cloud-provider=external --provider-id=cloudlycke://<ID>`. I added the `provider-id` flag to force the `kubelet` to set that on node initialization. The value of this flag is used during the subsequent calls to the Cloudlycke cloud through the Cloud Controller Manager.
+* The Kubelets will be configured with the following flag(s): `--node-ip <VM IP> --cloud-provider=external --provider-id=cloudlycke://<ID>`. I added the `provider-id` flag to force the `kubelet` to set that on node initialization since i don't have something like a instance metadata service to query. Although that can definately be built in or hard coded basically.
 * The Cloudlycke Cloud Controller will be configured with the following flag(s): `--cloud-provider=cloudlycke`
 
   _Please note that the container image, used in the [all-in-one manifest](/manifests/cloudlycke-ccm.yaml), is one that i've built and pushed to my private Docker Hub repository. Please see the [Dockerfile](/Dockerfile) to see how the image was built._
@@ -118,6 +118,8 @@ Note that the master node `master-c2-1` will be tainted and only allow pods with
     ```
     If you wonder why there's beta labels in there you can track the promotion of cloud provider labels to GA at [this](https://github.com/kubernetes/enhancements/issues/837) issue, here's a KEP defining [standard topology labels](https://github.com/kubernetes/enhancements/pull/1660) that also might be of interest.
   * The Nginx Pods that earlier were in `Pending` state now should be `Running`, this is a consequence of that taint being removed.
+  
+  Regarding the labels, note that e.g. the OpenStack external CCM uses the [Nova (OpenStack compute service) instance metadata](https://github.com/kubernetes/cloud-provider-openstack/blob/v1.18.0/pkg/util/metadata/metadata.go) to add the instance information to the `Node` labels. 
   
   The responsible controller for these operations are the (Cloud) Node Controller.
   
