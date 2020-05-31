@@ -10,7 +10,7 @@ I wanted my Kubernetes clusters in this cloud provider to be able to integrate w
  
  All of the API calls to the Cloudlycke cloud provider is hardcoded to respond with a particular response to fit the scenarios. It does *not* communicate with Vagrant in any way, but it looks like that anyways.
 
-I've written an in-depth [write-up](ADD LINK HERE) that explains and explores the Cloud Controller Manager, from more of a theoretical and source code level.
+I've written an in-depth [write-up](https://medium.com/@m.json/the-kubernetes-cloud-controller-manager-d440af0d2be5) that explains and explores the Cloud Controller Manager, from more of a theoretical and source code level.
 
 If this is of any kind of interest to you and if you've spotted something that just isn't correct, please feel free to contribute with issues and PRs!
 
