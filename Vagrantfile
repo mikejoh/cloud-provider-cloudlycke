@@ -24,7 +24,7 @@ Vagrant.configure("2") do |config|
             master.vm.network "private_network", ip: "192.168.#{c}0.10"
             master.vm.hostname = "master-c#{c}-1"
             master.vm.provision "ansible" do |ansible|
-                ansible.playbook = "ansible/master.yaml"
+                ansible.playbook = "vagrant/ansible/master.yaml"
                 ansible.extra_vars = {
                     node_ip: "192.168.#{c}0.10",
                     node_name: "master-c#{c}-1",
@@ -47,7 +47,7 @@ Vagrant.configure("2") do |config|
                 node.vm.network "private_network", ip: "192.168.#{c}0.#{i + 10}"
                 node.vm.hostname = "node-c#{c}-#{i}"
                 node.vm.provision "ansible" do |ansible|
-                    ansible.playbook = "ansible/node.yaml"
+                    ansible.playbook = "vagrant/ansible/node.yaml"
                     ansible.extra_vars = {
                         node_ip: "192.168.#{c}0.#{i + 10}",
                         node_name: "node-c#{c}-#{i}",
