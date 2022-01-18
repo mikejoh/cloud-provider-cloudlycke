@@ -143,7 +143,7 @@
 
     - name: Copy Cloudlycke Controller Manager manifest to remote
       copy:
-        src: manifests/cloudlycke-ccm.yaml
+        src: ../../manifests/cloudlycke-ccm.yaml
         dest: /etc/kubernetes/cloudlycke-ccm.yaml
 
     - name: Copy admin.conf (kubeconfig) from remote
