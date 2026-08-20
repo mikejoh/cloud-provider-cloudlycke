@@ -164,7 +164,7 @@ func (i *instances) InstanceTypeByProviderID(ctx context.Context, providerID str
 // AddSSHKeyToAllInstances adds an SSH public key as a legal identity for all instances
 // expected format for the key is standard ssh-keygen format: <protocol> <blob>
 func (i *instances) AddSSHKeyToAllInstances(ctx context.Context, user string, keyData []byte) error {
-	klog.V(5).Info("AddSSHKeyToAllInstances(%v, %v)", user, keyData)
+	klog.V(5).Infof("AddSSHKeyToAllInstances(%v, %v)", user, keyData)
 	return cloudprovider.NotImplemented
 }
 

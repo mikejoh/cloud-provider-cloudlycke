@@ -21,9 +21,9 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
 	"time"
-	"math/rand"
 
 	"k8s.io/component-base/logs"
 	"k8s.io/kubernetes/cmd/cloud-controller-manager/app"

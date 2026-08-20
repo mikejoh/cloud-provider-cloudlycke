@@ -13,7 +13,7 @@ type loadbalancers struct {
 	client *http.Client
 }
 
-func newLoadBalancers(c *http.Client) (cloudprovider.LoadBalancer) {
+func newLoadBalancers(c *http.Client) cloudprovider.LoadBalancer {
 	return &loadbalancers{
 		c,
 	}
@@ -41,6 +41,7 @@ func (lb *loadbalancers) EnsureLoadBalancer(ctx context.Context, clusterName str
 	klog.V(5).Info("EnsureLoadBalancer()")
 	return nil, nil
 }
+
 // UpdateLoadBalancer updates hosts under the specified load balancer.
 // Implementations must treat the *v1.Service and *v1.Node
 // parameters as read-only and not modify them.

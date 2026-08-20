@@ -4,3 +4,7 @@ join-command
 .idea/
 **/bin/
 artifacts/
+/build/
+coverage.out
+coverage.html
+dist/

@@ -1,0 +1,49 @@
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: cloud-provider-cloudlycke
+    main: ./cmd
+    binary: cloud-provider-cloudlycke
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+
+archives:
+  - id: cloud-provider-cloudlycke
+    formats: [tar.gz]
+    name_template: >-
+      {{ .ProjectName }}_{{ .Os }}_{{ .Arch }}
+
+dockers:
+  - id: cloud-provider-cloudlycke
+    ids:
+      - cloud-provider-cloudlycke
+    dockerfile: Dockerfile.goreleaser
+    image_templates:
+      - "docker.io/mikejoh/cloud-provider-cloudlycke:{{ .Tag }}"
+      - "docker.io/mikejoh/cloud-provider-cloudlycke:latest"
+    goos: linux
+    goarch: amd64
+
+checksum:
+  name_template: "checksums.txt"
+
+snapshot:
+  version_template: "{{ .Tag }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"

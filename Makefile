@@ -30,11 +30,38 @@ DEFAULT_VERSION_TAG := latest
 test:
 	@$(GOCMD) test ./... -v -cover
 
+## testcov: Run all tests and generate an HTML coverage report.
+.PHONY: testcov
+testcov:
+	@$(GOCMD) test ./... -coverprofile=coverage.out
+	@$(GOCMD) tool cover -html=coverage.out -o coverage.html
+
+## vet: Run go vet against the code.
+.PHONY: vet
+vet:
+	@$(GOCMD) vet ./...
+
+## lint: Run golangci-lint against the code.
+.PHONY: lint
+lint:
+	@golangci-lint run -v --timeout=15m ./...
+
+## dep: Verify and tidy module dependencies.
+.PHONY: dep
+dep:
+	@$(GOCMD) mod tidy
+	@$(GOCMD) mod verify
+
+## build: Build the binary for CI (native OS/ARCH, no ldflags).
+.PHONY: build
+build:
+	@$(GOCMD) build -o build/cloud-provider-cloudlycke ./cmd
+
 ## clean: Clean the working directory.
 .PHONY: clean
 clean:
 	@echo " > Cleaning the working directory..."
-	@rm -rf ./bin/
+	@rm -rf ./bin/ ./build/
 
 ## build-linux: Build Linux amd64 binary locally.
 .PHONY: build-linux

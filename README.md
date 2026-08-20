@@ -1,5 +1,9 @@
 # The Cloudlycke Cloud Controller Manager
 
+[![CI](https://github.com/mikejoh/cloud-provider-cloudlycke/actions/workflows/go.yml/badge.svg)](https://github.com/mikejoh/cloud-provider-cloudlycke/actions/workflows/go.yml)
+[![Release](https://img.shields.io/github/v/release/mikejoh/cloud-provider-cloudlycke)](https://github.com/mikejoh/cloud-provider-cloudlycke/releases/latest)
+[![Go Report Card](https://goreportcard.com/badge/cloudlycke.io/cloudlycke)](https://goreportcard.com/report/cloudlycke.io/cloudlycke)
+
 This repository contains the Cloudlycke Cloud Controller Manager, an [out-of-tree](https://kubernetes.io/blog/2019/04/17/the-future-of-cloud-providers-in-kubernetes/) and [by-the-book](https://kubernetes.io/docs/tasks/administer-cluster/developing-cloud-controller-manager/#out-of-tree) built Kubernetes cloud controller that implements the `k8s.io/cloud-provider` [Interface](https://github.com/kubernetes/cloud-provider/blob/v0.18.2/cloud.go#L43-L62). 
 
 This `cloud-controller-manager` is built using the `v1.18.x` release of Kubernetes. This means that `v1.18.x` is used everywhere we have dependencies on Kubernetes. 
